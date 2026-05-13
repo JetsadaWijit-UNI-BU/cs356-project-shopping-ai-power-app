@@ -32,14 +32,14 @@ class _ProductCreateScreenState extends State<ProductCreateScreen> {
         Uri.parse('$baseUrl/products'),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token', // Required by authLogger middleware
+          'Authorization': 'Bearer $token',
         },
         body: jsonEncode({
           'storeId': int.parse(_storeIdController.text),
           'displayName': _displayNameController.text,
           'price': double.parse(_priceController.text),
           'description': _descriptionController.text,
-          'pictures': '', // Placeholder for pictures array or string
+          'pictures': '', 
         }),
       );
 
@@ -76,46 +76,78 @@ class _ProductCreateScreenState extends State<ProductCreateScreen> {
     super.dispose();
   }
 
+  // Helper method to build labels closer to text fields
+  Widget _buildLabel(String text) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 2.0, left: 4.0), // Reduced bottom padding
+      child: Text(
+        text,
+        style: const TextStyle(
+          color: Colors.black87,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Create Product')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: [
-              TextFormField(
-                controller: _storeIdController,
-                decoration: const InputDecoration(labelText: 'Store ID'),
-                keyboardType: TextInputType.number,
-                validator: (value) => value!.isEmpty ? 'Required' : null,
-              ),
-              TextFormField(
-                controller: _displayNameController,
-                decoration: const InputDecoration(labelText: 'Product Name'),
-                validator: (value) => value!.isEmpty ? 'Required' : null,
-              ),
-              TextFormField(
-                controller: _priceController,
-                decoration: const InputDecoration(labelText: 'Price'),
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                validator: (value) => value!.isEmpty ? 'Required' : null,
-              ),
-              TextFormField(
-                controller: _descriptionController,
-                decoration: const InputDecoration(labelText: 'Description'),
-                maxLines: 3,
-              ),
-              const SizedBox(height: 20),
-              _isLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : ElevatedButton(
-                      onPressed: _createProduct,
-                      child: const Text('Create'),
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: Card(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildLabel('Store ID'),
+                    TextFormField(
+                      controller: _storeIdController,
+                      decoration: const InputDecoration(hintText: 'Enter store ID'),
+                      keyboardType: TextInputType.number,
+                      validator: (value) => value!.isEmpty ? 'Required' : null,
                     ),
-            ],
+                    const SizedBox(height: 16),
+                    _buildLabel('Product Name'),
+                    TextFormField(
+                      controller: _displayNameController,
+                      decoration: const InputDecoration(hintText: 'Enter product name'),
+                      validator: (value) => value!.isEmpty ? 'Required' : null,
+                    ),
+                    const SizedBox(height: 16),
+                    _buildLabel('Price'),
+                    TextFormField(
+                      controller: _priceController,
+                      decoration: const InputDecoration(hintText: 'Enter price'),
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      validator: (value) => value!.isEmpty ? 'Required' : null,
+                    ),
+                    const SizedBox(height: 16),
+                    _buildLabel('Description'),
+                    TextFormField(
+                      controller: _descriptionController,
+                      decoration: const InputDecoration(hintText: 'Enter product description'),
+                      maxLines: 3,
+                    ),
+                    const SizedBox(height: 30),
+                    Center(
+                      child: _isLoading
+                          ? const CircularProgressIndicator()
+                          : ElevatedButton(
+                              onPressed: _createProduct,
+                              child: const Text('Create Product'),
+                            ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
         ),
       ),

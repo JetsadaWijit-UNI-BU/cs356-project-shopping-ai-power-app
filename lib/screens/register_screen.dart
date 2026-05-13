@@ -71,45 +71,72 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Register')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: [
-              TextFormField(
-                controller: _firstNameController,
-                decoration: const InputDecoration(labelText: 'First Name'),
-                validator: (value) => value!.isEmpty ? 'First name is required' : null,
-              ),
-              const SizedBox(height: 10),
-              TextFormField(
-                controller: _lastNameController,
-                decoration: const InputDecoration(labelText: 'Last Name'),
-                validator: (value) => value!.isEmpty ? 'Last name is required' : null,
-              ),
-              const SizedBox(height: 10),
-              TextFormField(
-                controller: _emailController,
-                decoration: const InputDecoration(labelText: 'Email'),
-                keyboardType: TextInputType.emailAddress,
-                validator: (value) => value!.isEmpty ? 'Email is required' : null,
-              ),
-              const SizedBox(height: 10),
-              TextFormField(
-                controller: _passwordController,
-                decoration: const InputDecoration(labelText: 'Password'),
-                obscureText: true,
-                validator: (value) => value!.isEmpty ? 'Password is required' : null,
-              ),
-              const SizedBox(height: 20),
-              _isLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : ElevatedButton(
-                      onPressed: _register,
-                      child: const Text('Create Account'),
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: Card(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TextFormField(
+                      controller: _firstNameController,
+                      // Use labelText directly instead of a separate label widget
+                      decoration: const InputDecoration(
+                        labelText: 'First Name',
+                        hintText: 'Enter your first name',
+                      ),
+                      validator: (value) => value!.isEmpty ? 'First name is required' : null,
                     ),
-            ],
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _lastNameController,
+                      // Use labelText directly instead of a separate label widget
+                      decoration: const InputDecoration(
+                        labelText: 'Last Name',
+                        hintText: 'Enter your last name',
+                      ),
+                      validator: (value) => value!.isEmpty ? 'Last name is required' : null,
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _emailController,
+                      // Use labelText directly instead of a separate label widget
+                      decoration: const InputDecoration(
+                        labelText: 'Email',
+                        hintText: 'Enter your email',
+                      ),
+                      keyboardType: TextInputType.emailAddress,
+                      validator: (value) => value!.isEmpty ? 'Email is required' : null,
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _passwordController,
+                      // Use labelText directly instead of a separate label widget
+                      decoration: const InputDecoration(
+                        labelText: 'Password',
+                        hintText: 'Enter your password',
+                      ),
+                      obscureText: true,
+                      validator: (value) => value!.isEmpty ? 'Password is required' : null,
+                    ),
+                    const SizedBox(height: 30),
+                    Center(
+                      child: _isLoading
+                          ? const CircularProgressIndicator()
+                          : ElevatedButton(
+                              onPressed: _register,
+                              child: const Text('Create Account'),
+                            ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
         ),
       ),

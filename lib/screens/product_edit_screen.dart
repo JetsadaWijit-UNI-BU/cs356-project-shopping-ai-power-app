@@ -107,47 +107,77 @@ class _ProductEditScreenState extends State<ProductEditScreen> {
     ) ?? false;
   }
 
+  // Helper method to build labels closer to text fields
+  Widget _buildLabel(String text) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 2.0, left: 4.0), // Reduced bottom padding
+      child: Text(
+        text,
+        style: const TextStyle(
+          color: Colors.black87,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: _onWillPop,
       child: Scaffold(
         appBar: AppBar(title: const Text('Edit Product')),
-        body: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  TextFormField(
-                    controller: _nameController,
-                    decoration: const InputDecoration(labelText: 'Product Name'),
-                    validator: (value) => value!.isEmpty ? 'Name cannot be empty' : null,
+        body: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
+            child: Card(
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildLabel('Product Name'),
+                      TextFormField(
+                        controller: _nameController,
+                        decoration: const InputDecoration(hintText: 'Enter product name'),
+                        validator: (value) => value!.isEmpty ? 'Name cannot be empty' : null,
+                      ),
+                      const SizedBox(height: 16),
+                      _buildLabel('Price'),
+                      TextFormField(
+                        controller: _priceController,
+                        decoration: const InputDecoration(hintText: 'Enter price'),
+                        keyboardType: TextInputType.number,
+                        validator: (value) => value!.isEmpty ? 'Price cannot be empty' : null,
+                      ),
+                      const SizedBox(height: 16),
+                      _buildLabel('Picture URL'),
+                      TextFormField(
+                        controller: _pictureController,
+                        decoration: const InputDecoration(hintText: 'Enter picture URL'),
+                      ),
+                      const SizedBox(height: 16),
+                      _buildLabel('Description'),
+                      TextFormField(
+                        controller: _descController,
+                        decoration: const InputDecoration(hintText: 'Enter description'),
+                        maxLines: 3,
+                      ),
+                      const SizedBox(height: 30),
+                      Center(
+                        child: _isSaving
+                            ? const CircularProgressIndicator()
+                            : ElevatedButton(
+                                onPressed: _updateProduct,
+                                child: const Text('Update Product'),
+                              ),
+                      ),
+                    ],
                   ),
-                  TextFormField(
-                    controller: _priceController,
-                    decoration: const InputDecoration(labelText: 'Price'),
-                    keyboardType: TextInputType.number,
-                    validator: (value) => value!.isEmpty ? 'Price cannot be empty' : null,
-                  ),
-                  TextFormField(
-                    controller: _pictureController,
-                    decoration: const InputDecoration(labelText: 'Picture URL'),
-                  ),
-                  TextFormField(
-                    controller: _descController,
-                    decoration: const InputDecoration(labelText: 'Description'),
-                    maxLines: 3,
-                  ),
-                  const SizedBox(height: 20),
-                  _isSaving
-                      ? const CircularProgressIndicator()
-                      : ElevatedButton(
-                          onPressed: _updateProduct,
-                          child: const Text('Update'),
-                        ),
-                ],
+                ),
               ),
             ),
           ),

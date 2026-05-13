@@ -34,7 +34,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       if (response.statusCode == 200) {
         setState(() {
-          // Parse JSON directly into the User model
           _profileData = User.fromJson(jsonDecode(response.body));
           _isLoading = false;
         });
@@ -54,17 +53,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ? const Center(child: CircularProgressIndicator())
           : _profileData == null
               ? const Center(child: Text('Failed to load profile'))
-              : Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('First Name: ${_profileData!.firstName}', style: const TextStyle(fontSize: 18)),
-                      const SizedBox(height: 10),
-                      Text('Last Name: ${_profileData!.lastName}', style: const TextStyle(fontSize: 18)),
-                      const SizedBox(height: 10),
-                      Text('Email: ${_profileData!.email}', style: const TextStyle(fontSize: 18)),
-                    ],
+              : Center(
+                  child: Card(
+                    margin: const EdgeInsets.all(16.0),
+                    child: Padding(
+                      padding: const EdgeInsets.all(32.0),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Center(
+                            child: Icon(Icons.account_circle, size: 80, color: Colors.black54),
+                          ),
+                          const SizedBox(height: 20),
+                          Text('First Name: ${_profileData!.firstName}', style: const TextStyle(fontSize: 18)),
+                          const SizedBox(height: 16),
+                          Text('Last Name: ${_profileData!.lastName}', style: const TextStyle(fontSize: 18)),
+                          const SizedBox(height: 16),
+                          Text('Email: ${_profileData!.email}', style: const TextStyle(fontSize: 18)),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
     );

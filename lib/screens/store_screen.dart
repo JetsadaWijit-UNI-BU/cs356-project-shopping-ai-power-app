@@ -41,7 +41,6 @@ class _StoreScreenState extends State<StoreScreen> {
         final List<dynamic> productList = data['products'] ?? [];
         
         setState(() {
-          // Map the dynamic list into a List of Product models
           _products = productList.map((json) => Product.fromJson(json)).toList();
           _isLoading = false;
         });
@@ -77,13 +76,15 @@ class _StoreScreenState extends State<StoreScreen> {
           : _products.isEmpty
               ? const Center(child: Text('No products found.'))
               : ListView.builder(
+                  padding: const EdgeInsets.all(8.0),
                   itemCount: _products.length,
                   itemBuilder: (context, index) {
                     final product = _products[index];
-                    return ListTile(
-                      // Using model properties instead of dynamic keys
-                      title: Text(product.displayName),
-                      subtitle: Text('Price: \$${product.price}'),
+                    return Card(
+                      child: ListTile(
+                        title: Text(product.displayName),
+                        subtitle: Text('Price: \$${product.price}'),
+                      ),
                     );
                   },
                 ),

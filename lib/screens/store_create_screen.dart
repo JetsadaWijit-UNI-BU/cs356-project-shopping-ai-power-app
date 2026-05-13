@@ -61,34 +61,62 @@ class _StoreCreateScreenState extends State<StoreCreateScreen> {
     }
   }
 
+  // Helper method to build labels closer to text fields
+  Widget _buildLabel(String text) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 2.0, left: 4.0), // Reduced bottom padding
+      child: Text(
+        text,
+        style: const TextStyle(
+          color: Colors.black87,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Create Store')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              TextFormField(
-                controller: _nameController,
-                decoration: const InputDecoration(labelText: 'Store Name'),
-                validator: (value) => value!.isEmpty ? 'Store name is required' : null,
-              ),
-              TextFormField(
-                controller: _profileController,
-                decoration: const InputDecoration(labelText: 'Store Profile/Description'),
-                validator: (value) => value!.isEmpty ? 'Profile is required' : null,
-              ),
-              const SizedBox(height: 20),
-              _isLoading
-                  ? const CircularProgressIndicator()
-                  : ElevatedButton(
-                      onPressed: _createStore,
-                      child: const Text('Create'),
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: Card(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildLabel('Store Name'),
+                    TextFormField(
+                      controller: _nameController,
+                      decoration: const InputDecoration(hintText: 'Enter store name'),
+                      validator: (value) => value!.isEmpty ? 'Store name is required' : null,
                     ),
-            ],
+                    const SizedBox(height: 16),
+                    _buildLabel('Store Profile/Description'),
+                    TextFormField(
+                      controller: _profileController,
+                      decoration: const InputDecoration(hintText: 'Enter store profile'),
+                      validator: (value) => value!.isEmpty ? 'Profile is required' : null,
+                    ),
+                    const SizedBox(height: 30),
+                    Center(
+                      child: _isLoading
+                          ? const CircularProgressIndicator()
+                          : ElevatedButton(
+                              onPressed: _createStore,
+                              child: const Text('Create Store'),
+                            ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
         ),
       ),

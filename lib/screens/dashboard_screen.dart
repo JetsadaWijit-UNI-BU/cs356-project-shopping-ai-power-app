@@ -31,30 +31,36 @@ class DashboardScreen extends StatelessWidget {
         ],
       ),
       body: ListView(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(8.0),
         children: [
-          ListTile(
-            leading: const Icon(Icons.person),
-            title: const Text('My Profile'),
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const ProfileScreen()),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.person),
+              title: const Text('My Profile'),
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ProfileScreen()),
+              ),
             ),
           ),
-          ListTile(
-            leading: const Icon(Icons.store),
-            title: const Text('Create Store'),
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const StoreCreateScreen()),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.store),
+              title: const Text('Create Store'),
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const StoreCreateScreen()),
+              ),
             ),
           ),
-          ListTile(
-            leading: const Icon(Icons.add_box),
-            title: const Text('Create Product'),
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const ProductCreateScreen()),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.add_box),
+              title: const Text('Create Product'),
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ProductCreateScreen()),
+              ),
             ),
           ),
         ],
