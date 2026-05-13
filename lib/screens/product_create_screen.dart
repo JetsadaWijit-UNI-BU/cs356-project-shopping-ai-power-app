@@ -3,7 +3,6 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../main.dart';
-import '../models/store.dart';
 
 class ProductCreateScreen extends StatefulWidget {
   const ProductCreateScreen({super.key});
@@ -14,63 +13,16 @@ class ProductCreateScreen extends StatefulWidget {
 
 class _ProductCreateScreenState extends State<ProductCreateScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
+  final _storeIdController = TextEditingController();
+  final _displayNameController = TextEditingController();
   final _priceController = TextEditingController();
-  final _pictureController = TextEditingController();
-  final _descController = TextEditingController();
-  
-  String? _selectedStoreId;
-  List<Store> _userStores = [];
-  bool _isLoadingStores = true;
-  bool _isSaving = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _fetchUserStores();
-  }
-
-  Future<void> _fetchUserStores() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('token') ?? '';
-
-      final response = await http.get(
-        Uri.parse('$baseUrl/stores'),
-        headers: {'Authorization': 'Bearer $token'},
-      );
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final List<dynamic> storeList = data['stores'] ?? [];
-        
-        setState(() {
-          // Map the dynamic list into a List of Store models
-          _userStores = storeList.map((json) => Store.fromJson(json)).toList();
-          
-          if (_userStores.isNotEmpty) {
-            _selectedStoreId = _userStores.first.id.toString();
-          }
-          _isLoadingStores = false;
-        });
-      } else {
-        setState(() => _isLoadingStores = false);
-      }
-    } catch (e) {
-      setState(() => _isLoadingStores = false);
-    }
-  }
+  final _descriptionController = TextEditingController();
+  bool _isLoading = false;
 
   Future<void> _createProduct() async {
     if (!_formKey.currentState!.validate()) return;
-    if (_selectedStoreId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a store')),
-      );
-      return;
-    }
 
-    setState(() => _isSaving = true);
+    setState(() => _isLoading = true);
 
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -80,127 +32,92 @@ class _ProductCreateScreenState extends State<ProductCreateScreen> {
         Uri.parse('$baseUrl/products'),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
+          'Authorization': 'Bearer $token', // Required by authLogger middleware
         },
         body: jsonEncode({
-          'storeId': int.parse(_selectedStoreId!),
-          'displayName': _nameController.text,
+          'storeId': int.parse(_storeIdController.text),
+          'displayName': _displayNameController.text,
           'price': double.parse(_priceController.text),
-          'pictures': _pictureController.text,
-          'description': _descController.text,
+          'description': _descriptionController.text,
+          'pictures': '', // Placeholder for pictures array or string
         }),
       );
 
       final data = jsonDecode(response.body);
 
+      if (!mounted) return;
+
       if (response.statusCode == 201 && data['is_success']) {
-        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Product created successfully')),
         );
         Navigator.pop(context);
       } else {
-        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(data['message'] ?? 'Failed to create product')),
         );
       }
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Network error')),
+        const SnackBar(content: Text('Network error occurred')),
       );
     } finally {
-      if (mounted) setState(() => _isSaving = false);
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
-  Future<bool> _onWillPop() async {
-    if (_nameController.text.isNotEmpty || _priceController.text.isNotEmpty) {
-      return await showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Discard Changes?'),
-          content: const Text('You have unsaved changes. Are you sure you want to leave?'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('No'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('Yes'),
-            ),
-          ],
-        ),
-      ) ?? false;
-    }
-    return true;
+  @override
+  void dispose() {
+    _storeIdController.dispose();
+    _displayNameController.dispose();
+    _priceController.dispose();
+    _descriptionController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: _onWillPop,
-      child: Scaffold(
-        appBar: AppBar(title: const Text('Create Product')),
-        body: _isLoadingStores
-            ? const Center(child: CircularProgressIndicator())
-            : Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Form(
-                  key: _formKey,
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        DropdownButtonFormField<String>(
-                          value: _selectedStoreId,
-                          decoration: const InputDecoration(labelText: 'Select Store'),
-                          items: _userStores.map((store) {
-                            return DropdownMenuItem<String>(
-                              value: store.id.toString(),
-                              child: Text(store.displayName),
-                            );
-                          }).toList(),
-                          onChanged: (val) {
-                            setState(() {
-                              _selectedStoreId = val;
-                            });
-                          },
-                          validator: (value) => value == null ? 'Please select a store' : null,
-                        ),
-                        TextFormField(
-                          controller: _nameController,
-                          decoration: const InputDecoration(labelText: 'Product Name'),
-                          validator: (value) => value!.isEmpty ? 'Name is required' : null,
-                        ),
-                        TextFormField(
-                          controller: _priceController,
-                          decoration: const InputDecoration(labelText: 'Price'),
-                          keyboardType: TextInputType.number,
-                          validator: (value) => value!.isEmpty ? 'Price is required' : null,
-                        ),
-                        TextFormField(
-                          controller: _pictureController,
-                          decoration: const InputDecoration(labelText: 'Picture URL'),
-                          validator: (value) => value!.isEmpty ? 'Picture is required' : null,
-                        ),
-                        TextFormField(
-                          controller: _descController,
-                          decoration: const InputDecoration(labelText: 'Description'),
-                          maxLines: 3,
-                        ),
-                        const SizedBox(height: 20),
-                        _isSaving
-                            ? const CircularProgressIndicator()
-                            : ElevatedButton(
-                                onPressed: _createProduct,
-                                child: const Text('Save Product'),
-                              ),
-                      ],
-                    ),
-                  ),
-                ),
+    return Scaffold(
+      appBar: AppBar(title: const Text('Create Product')),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            children: [
+              TextFormField(
+                controller: _storeIdController,
+                decoration: const InputDecoration(labelText: 'Store ID'),
+                keyboardType: TextInputType.number,
+                validator: (value) => value!.isEmpty ? 'Required' : null,
               ),
+              TextFormField(
+                controller: _displayNameController,
+                decoration: const InputDecoration(labelText: 'Product Name'),
+                validator: (value) => value!.isEmpty ? 'Required' : null,
+              ),
+              TextFormField(
+                controller: _priceController,
+                decoration: const InputDecoration(labelText: 'Price'),
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                validator: (value) => value!.isEmpty ? 'Required' : null,
+              ),
+              TextFormField(
+                controller: _descriptionController,
+                decoration: const InputDecoration(labelText: 'Description'),
+                maxLines: 3,
+              ),
+              const SizedBox(height: 20),
+              _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : ElevatedButton(
+                      onPressed: _createProduct,
+                      child: const Text('Create'),
+                    ),
+            ],
+          ),
+        ),
       ),
     );
   }

@@ -14,10 +14,19 @@ class Product {
   });
 
   factory Product.fromJson(Map<String, dynamic> json) {
+    // Safely parse price which might come as int or double from the backend
+    double parsedPrice = 0.0;
+    if (json['price'] != null) {
+      parsedPrice = json['price'] is int 
+          ? (json['price'] as int).toDouble() 
+          : json['price'] as double;
+    }
+
     return Product(
       id: json['id'] ?? 0,
-      displayName: json['displayName'] ?? 'Unknown Product',
-      price: (json['price'] ?? 0).toDouble(),
+      // Handle both camelCase and snake_case to match backend response
+      displayName: json['display_name'] ?? json['displayName'] ?? 'Unknown Product',
+      price: parsedPrice,
       description: json['description'] ?? '',
       pictures: json['pictures'] ?? '',
     );
