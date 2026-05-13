@@ -13,10 +13,9 @@ class RegisterScreen extends StatefulWidget {
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _confirmPasswordController = TextEditingController();
   bool _isLoading = false;
 
   Future<void> _register() async {
@@ -30,9 +29,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'email': _emailController.text,
+          'password': _passwordController.text,
           'firstName': _firstNameController.text,
           'lastName': _lastNameController.text,
-          'password': _passwordController.text,
         }),
       );
 
@@ -60,52 +59,55 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Register')),
-      body: SingleChildScrollView(
+      body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
-          child: Column(
+          child: ListView(
             children: [
               TextFormField(
                 controller: _firstNameController,
                 decoration: const InputDecoration(labelText: 'First Name'),
-                validator: (value) => value!.isEmpty ? 'First Name is required' : null,
+                validator: (value) => value!.isEmpty ? 'First name is required' : null,
               ),
+              const SizedBox(height: 10),
               TextFormField(
                 controller: _lastNameController,
                 decoration: const InputDecoration(labelText: 'Last Name'),
-                validator: (value) => value!.isEmpty ? 'Last Name is required' : null,
+                validator: (value) => value!.isEmpty ? 'Last name is required' : null,
               ),
+              const SizedBox(height: 10),
               TextFormField(
                 controller: _emailController,
                 decoration: const InputDecoration(labelText: 'Email'),
+                keyboardType: TextInputType.emailAddress,
                 validator: (value) => value!.isEmpty ? 'Email is required' : null,
               ),
+              const SizedBox(height: 10),
               TextFormField(
                 controller: _passwordController,
                 decoration: const InputDecoration(labelText: 'Password'),
                 obscureText: true,
                 validator: (value) => value!.isEmpty ? 'Password is required' : null,
               ),
-              TextFormField(
-                controller: _confirmPasswordController,
-                decoration: const InputDecoration(labelText: 'Confirm Password'),
-                obscureText: true,
-                validator: (value) {
-                  if (value!.isEmpty) return 'Please confirm your password';
-                  if (value != _passwordController.text) return 'Passwords do not match';
-                  return null;
-                },
-              ),
               const SizedBox(height: 20),
               _isLoading
-                  ? const CircularProgressIndicator()
+                  ? const Center(child: CircularProgressIndicator())
                   : ElevatedButton(
                       onPressed: _register,
-                      child: const Text('Register'),
+                      child: const Text('Create Account'),
                     ),
             ],
           ),
