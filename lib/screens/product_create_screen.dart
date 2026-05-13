@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../main.dart';
+import '../models/store.dart';
 
 class ProductCreateScreen extends StatefulWidget {
   const ProductCreateScreen({super.key});
@@ -19,7 +20,7 @@ class _ProductCreateScreenState extends State<ProductCreateScreen> {
   final _descController = TextEditingController();
   
   String? _selectedStoreId;
-  List<dynamic> _userStores = [];
+  List<Store> _userStores = [];
   bool _isLoadingStores = true;
   bool _isSaving = false;
 
@@ -41,10 +42,14 @@ class _ProductCreateScreenState extends State<ProductCreateScreen> {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
+        final List<dynamic> storeList = data['stores'] ?? [];
+        
         setState(() {
-          _userStores = data['stores'] ?? [];
+          // Map the dynamic list into a List of Store models
+          _userStores = storeList.map((json) => Store.fromJson(json)).toList();
+          
           if (_userStores.isNotEmpty) {
-            _selectedStoreId = _userStores.first['id'].toString();
+            _selectedStoreId = _userStores.first.id.toString();
           }
           _isLoadingStores = false;
         });
@@ -152,8 +157,8 @@ class _ProductCreateScreenState extends State<ProductCreateScreen> {
                           decoration: const InputDecoration(labelText: 'Select Store'),
                           items: _userStores.map((store) {
                             return DropdownMenuItem<String>(
-                              value: store['id'].toString(),
-                              child: Text(store['displayName']),
+                              value: store.id.toString(),
+                              child: Text(store.displayName),
                             );
                           }).toList(),
                           onChanged: (val) {

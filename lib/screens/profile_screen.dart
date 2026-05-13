@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../main.dart';
+import '../models/user.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -12,7 +13,7 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  Map<String, dynamic>? _profileData;
+  User? _profileData;
   bool _isLoading = true;
 
   @override
@@ -33,7 +34,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       if (response.statusCode == 200) {
         setState(() {
-          _profileData = jsonDecode(response.body);
+          // Parse JSON directly into the User model
+          _profileData = User.fromJson(jsonDecode(response.body));
           _isLoading = false;
         });
       } else {
@@ -57,11 +59,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('First Name: ${_profileData!['firstName']}', style: const TextStyle(fontSize: 18)),
+                      Text('First Name: ${_profileData!.firstName}', style: const TextStyle(fontSize: 18)),
                       const SizedBox(height: 10),
-                      Text('Last Name: ${_profileData!['lastName']}', style: const TextStyle(fontSize: 18)),
+                      Text('Last Name: ${_profileData!.lastName}', style: const TextStyle(fontSize: 18)),
                       const SizedBox(height: 10),
-                      Text('Email: ${_profileData!['email']}', style: const TextStyle(fontSize: 18)),
+                      Text('Email: ${_profileData!.email}', style: const TextStyle(fontSize: 18)),
                     ],
                   ),
                 ),

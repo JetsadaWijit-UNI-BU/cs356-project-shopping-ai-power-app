@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../main.dart';
+import '../models/product.dart';
 import 'store_edit_screen.dart';
 
 class StoreScreen extends StatefulWidget {
@@ -16,7 +17,7 @@ class StoreScreen extends StatefulWidget {
 }
 
 class _StoreScreenState extends State<StoreScreen> {
-  List<dynamic> _products = [];
+  List<Product> _products = [];
   bool _isLoading = true;
 
   @override
@@ -37,8 +38,11 @@ class _StoreScreenState extends State<StoreScreen> {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
+        final List<dynamic> productList = data['products'] ?? [];
+        
         setState(() {
-          _products = data['products'] ?? [];
+          // Map the dynamic list into a List of Product models
+          _products = productList.map((json) => Product.fromJson(json)).toList();
           _isLoading = false;
         });
       } else {
@@ -77,8 +81,9 @@ class _StoreScreenState extends State<StoreScreen> {
                   itemBuilder: (context, index) {
                     final product = _products[index];
                     return ListTile(
-                      title: Text(product['displayName'] ?? 'Unknown'),
-                      subtitle: Text('Price: \$${product['price']}'),
+                      // Using model properties instead of dynamic keys
+                      title: Text(product.displayName),
+                      subtitle: Text('Price: \$${product.price}'),
                     );
                   },
                 ),
